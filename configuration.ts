@@ -143,19 +143,7 @@ export const CONTRACTS = new Map<ContractName, IContract>([
         ["mainTest", ""],
       ]),
     },
-  ],
-  [
-    CONTRACT_NAMES[1],
-    {
-      name: CONTRACT_NAMES[1],
-      artifact: `artifacts/contracts/${CONTRACT_NAMES[1]}.sol/${CONTRACT_NAMES[1]}.json`,
-      address: new Map([
-        ["hardhat", ""],
-        ["ganache", ""],
-        ["mainTest", ""],
-      ]),
-    },
-  ],
+  ]
 ]);
 
 export const TEST = {
