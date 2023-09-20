@@ -164,7 +164,7 @@ export const deployUpgradeable = async (
   console.log(`Initialize data to be used: ${initData}`);
   //* TUP - Transparent Upgradeable Proxy
   const tupDeployResult = await deploy(
-    "TUP",
+    "TransparentUpgradeableProxy",
     deployer,
     [logic.address, proxyAdmin.address, initData],
     undefined,
@@ -281,7 +281,7 @@ export const upgrade = async (
   }
   console.log(`New logic contract deployed at: ${newLogic.address}`);
 
-  // -- encode function params for TUP
+  // -- encode function params for TransparentUpgradeableProxy
   let initData: string;
   if (initialize) {
     initData = newLogic.interface.encodeFunctionData("initialize", [...args]);

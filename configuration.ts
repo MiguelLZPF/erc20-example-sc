@@ -41,7 +41,7 @@ export const BLOCKCHAIN = {
   default: {
     solVersion: "0.8.19",
     evm: "london" as Hardfork,
-    gasLimit: 800000,
+    gasLimit: 8000000,
     gasPrice: 0,
     maxFeePerGas: 900000000,
     maxPriorityFeePerGas: 100,
@@ -147,5 +147,5 @@ export const CONTRACTS = new Map<ContractName, IContract>([
 ]);
 
 export const TEST = {
-  accountNumber: 2,
+  accountNumber: 3,
 };
