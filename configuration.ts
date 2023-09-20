@@ -23,9 +23,9 @@ export const KEYSTORE = {
     accountNumber: 10, // Ganache server default account number
     balance: "0x2710", // infinite balance
     password: "PaSs_W0Rd", // should use another password for real things
-    privateKey: "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d",
+    privateKey: "0x0c4542eabd9717977a50d9a67c043a12baaeafca856076f2e499f61401a9789d",
     mnemonic: {
-      phrase: "myth like bonus scare over problem client lizard pioneer submit female collect",
+      phrase: "base proof defy damp ceiling cigar museum wink surface auto method banner",
       path: "m/44'/60'/0'/0/0",
       basePath: "m/44'/60'/0'/0",
       locale: "en",
@@ -85,7 +85,7 @@ export const BLOCKCHAIN = {
         chainId: 1666,
         name: "mainTest",
         protocol: "http",
-        hostname: "192.168.12.207",
+        hostname: "192.168.12.32",
         port: 8545,
         dbPath: ".ganache-db",
       },
