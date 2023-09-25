@@ -40,7 +40,7 @@ export const KEYSTORE = {
 export const BLOCKCHAIN = {
   default: {
     solVersion: "0.8.19",
-    evm: "london" as Hardfork,
+    evm: "berlin" as Hardfork,
     gasLimit: 8000000,
     gasPrice: 0,
     maxFeePerGas: 900000000,
@@ -82,12 +82,11 @@ export const BLOCKCHAIN = {
     [
       "mainTest",
       {
-        chainId: 1666,
+        chainId: 6660,
         name: "mainTest",
         protocol: "http",
         hostname: "192.168.12.32",
         port: 8545,
-        dbPath: ".ganache-db",
       },
     ],
   ]),
@@ -97,9 +96,9 @@ export const BLOCKCHAIN = {
 export const GAS_OPT = {
   max: {
     gasLimit: BLOCKCHAIN.default.gasLimit,
-    // gasPrice: BLOCKCHAIN.default.gasPrice,
-    maxPriorityFeePerGas: BLOCKCHAIN.default.maxPriorityFeePerGas,
-    maxFeePerGas: BLOCKCHAIN.default.maxFeePerGas,
+    gasPrice: BLOCKCHAIN.default.gasPrice,
+    // maxPriorityFeePerGas: BLOCKCHAIN.default.maxPriorityFeePerGas,
+    // maxFeePerGas: BLOCKCHAIN.default.maxFeePerGas,
   },
 };
 

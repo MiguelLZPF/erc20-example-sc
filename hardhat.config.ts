@@ -3,7 +3,7 @@ import "hardhat-contract-sizer";
 // import { ethers } from "hardhat"; //! Cannot be imported here or any file that is imported here because it is generated here
 import { subtask, task, types } from "hardhat/config";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, Wallet, ContractTransaction } from "ethers";
 import { Mnemonic } from "ethers/lib/utils";
 import { BLOCKCHAIN, GAS_OPT, KEYSTORE } from "configuration";
 import { decryptWallet, generateWallet, generateWallets } from "scripts/wallets";
@@ -17,10 +17,13 @@ import {
   IGetLogic,
   IGetMnemonic,
   IGetWalletInfo,
+  IGrantRole,
+  ISignTransaction,
   ISignerInformation,
   IUpgrade,
 } from "models/Tasks";
 import JSON5 from "json5";
+import { grantRole } from "scripts/accessControl";
 
 //* TASKS
 subtask("create-signer", "Creates new signer from given params")
@@ -510,6 +513,151 @@ task("call-contract", "Call a contract function (this does not change contract s
     console.log("Result: ", await contract.callStatic[args.functionName](...functionArgs));
   });
 
+  task(
+    "execute-contract",
+    "Execute the transacction of a contract function (it CHANGES contract storage or state)"
+  )
+    .addPositionalParam(
+      "contractName",
+      "the name of the contract to get the ABI",
+      undefined,
+      types.string
+    )
+    .addPositionalParam(
+      "contractAddress",
+      "the address where de contract is located",
+      undefined,
+      types.string
+    )
+    .addPositionalParam("functionName", "the name of the function to call", undefined, types.string)
+    .addOptionalPositionalParam(
+      "functionArgs",
+      "the arguments to pass to the function",
+      undefined,
+      types.string
+    )
+    // Signer params
+    .addOptionalParam(
+      "relativePath",
+      "Path relative to KEYSTORE.root to store the wallets",
+      undefined,
+      types.string
+    )
+    .addOptionalParam(
+      "password",
+      "Password to decrypt the wallet",
+      KEYSTORE.default.password,
+      types.string
+    )
+    .addOptionalParam(
+      "privateKey",
+      "A private key in hexadecimal can be used to sign",
+      undefined,
+      types.string
+    )
+    .addOptionalParam(
+      "mnemonicPhrase",
+      "Mnemonic phrase to generate wallet from",
+      undefined,
+      types.string
+    )
+    .addOptionalParam(
+      "mnemonicPath",
+      "Mnemonic path to generate wallet from",
+      KEYSTORE.default.mnemonic.path,
+      types.string
+    )
+    .addOptionalParam(
+      "mnemonicLocale",
+      "Mnemonic locale to generate wallet from",
+      KEYSTORE.default.mnemonic.locale,
+      types.string
+    )
+    .setAction(async (args: ICallContract, hre) => {
+      setGlobalHRE(hre);
+      const wallet: Wallet = await hre.run("create-signer", {
+        relativePath: args.relativePath,
+        password: args.password,
+        privateKey: args.privateKey,
+        mnemonicPhrase: args.mnemonicPhrase,
+        mnemonicPath: args.mnemonicPath,
+        mnemonicLocale: args.mnemonicLocale,
+      } as ISignerInformation);
+      console.log(
+        `Calling Smart Contract ${args.contractName}.${args.functionName}(${args.functionArgs}) at ${args.contractAddress}...`
+      );
+      const functionArgs = args.functionArgs ? JSON5.parse(args.functionArgs) : [];
+      const contract = await getContractInstance(args.contractName, wallet, args.contractAddress);
+      const receipt = await (
+        (await contract[args.functionName](...functionArgs, GAS_OPT.max)) as ContractTransaction
+      ).wait();
+      console.log("\nTransaction executed succesfully: ", {
+        TransactionHash: receipt.transactionHash,
+        BlockHash: receipt.blockHash,
+        BlockNumber: receipt.blockNumber,
+      });
+    });
+  
+  task("sign-tx", "Signs the unsigned transaction")
+    .addPositionalParam("unsignedTx", "The complete unsigned transaction", undefined, types.string)
+    // Signer params
+    .addOptionalParam(
+      "relativePath",
+      "Path relative to KEYSTORE.root to store the wallets",
+      undefined,
+      types.string
+    )
+    .addOptionalParam(
+      "password",
+      "Password to decrypt the wallet",
+      KEYSTORE.default.password,
+      types.string
+    )
+    .addOptionalParam(
+      "privateKey",
+      "A private key in hexadecimal can be used to sign",
+      undefined,
+      types.string
+    )
+    .addOptionalParam(
+      "mnemonicPhrase",
+      "Mnemonic phrase to generate wallet from",
+      undefined,
+      types.string
+    )
+    .addOptionalParam(
+      "mnemonicPath",
+      "Mnemonic path to generate wallet from",
+      KEYSTORE.default.mnemonic.path,
+      types.string
+    )
+    .addOptionalParam(
+      "mnemonicLocale",
+      "Mnemonic locale to generate wallet from",
+      KEYSTORE.default.mnemonic.locale,
+      types.string
+    )
+    .setAction(async (args: ISignTransaction, hre) => {
+      setGlobalHRE(hre);
+      const wallet: Wallet = await hre.run("create-signer", {
+        relativePath: args.relativePath,
+        password: args.password,
+        privateKey: args.privateKey,
+        mnemonicPhrase: args.mnemonicPhrase,
+        mnemonicPath: args.mnemonicPath,
+        mnemonicLocale: args.mnemonicLocale,
+      } as ISignerInformation);
+  
+      const signedTx = await wallet.signTransaction(args.unsignedTx);
+  
+      console.log("\nTransaction signed succesfully: ", {
+        UnsignedTransaction: args.unsignedTx,
+        SignedTransaction: signedTx,
+        Signer: wallet.address,
+        SignerNonce: await wallet.getTransactionCount(),
+      });
+    });
+
 task(
   "get-logic",
   "Check what logic|implementation smart contract address is currently using a given proxy"
@@ -600,6 +748,78 @@ task("change-logic", "change the actual logic|implementation smart contract of a
         `);
   });
 
+//* Access Control
+task("grant-role", "Grants an address for an especific role")
+  .addParam("role", "Role for which one the entity will be added", undefined, types.string)
+  .addParam(
+    "entity",
+    "The entity address to be granted with the given role",
+    undefined,
+    types.string
+  )
+  .addOptionalParam(
+    "accessControl",
+    "AccessControl compatible smart contract address",
+    undefined,
+    types.string
+  )
+  // Signer params
+  .addOptionalParam(
+    "relativePath",
+    "Path relative to KEYSTORE.root to store the wallets",
+    undefined,
+    types.string
+  )
+  .addOptionalParam("password", "Wallet password", undefined, types.string)
+  .addOptionalParam("entropy", "Wallet entropy for random generation", undefined, types.string)
+  .addOptionalParam(
+    "privateKey",
+    "Private key to generate wallet from. Hexadecimal String format expected",
+    undefined,
+    types.string
+  )
+  .addOptionalParam(
+    "mnemonicPhrase",
+    "Mnemonic phrase to generate wallet from",
+    undefined,
+    types.string
+  )
+  .addOptionalParam(
+    "mnemonicPath",
+    "Mnemonic path to generate wallet from",
+    undefined,
+    types.string
+  )
+  .addOptionalParam(
+    "mnemonicLocale",
+    "Mnemonic locale to generate wallet from",
+    KEYSTORE.default.mnemonic.locale,
+    types.string
+  )
+  .setAction(async (args: IGrantRole, hre: HardhatRuntimeEnvironment) => {
+    await setGlobalHRE(hre);
+    const wallet = (await hre.run("create-signer", {
+      relativePath: args.relativePath,
+      password: args.password,
+      privateKey: args.privateKey,
+      mnemonicPhrase: args.mnemonicPhrase,
+      mnemonicPath: args.mnemonicPath,
+      mnemonicLocale: args.mnemonicLocale,
+    } as ISignerInformation)) as Wallet;
+
+    const response = await grantRole(args.entity, args.role, wallet, args.accessControl);
+    if (response.success) {
+      console.log(`
+      Role ${args.role} granted to Entity ${args.entity}.
+        Block: ${response.blockNumber}
+        Tx hash: ${response.txHash}
+    `);
+    } else {
+      throw new Error("Cannot grant role. Generic error");
+    }
+  });
+
+
 // OTHER
 task("get-timestamp", "get the current timestamp in seconds")
   .addOptionalParam("timeToAdd", "time to add to the timestamp in seconds", 0, types.int)
@@ -652,7 +872,7 @@ const config: HardhatUserConfig = {
       blockGasLimit: BLOCKCHAIN.default.gasLimit,
       gasPrice: BLOCKCHAIN.default.gasPrice,
       hardfork: BLOCKCHAIN.default.evm,
-      initialBaseFeePerGas: BLOCKCHAIN.default.initialBaseFeePerGas,
+      // initialBaseFeePerGas: BLOCKCHAIN.default.initialBaseFeePerGas,
       allowUnlimitedContractSize: false,
       accounts: {
         mnemonic: KEYSTORE.default.mnemonic.phrase,
@@ -678,7 +898,17 @@ const config: HardhatUserConfig = {
       blockGasLimit: BLOCKCHAIN.default.gasLimit,
       gasPrice: BLOCKCHAIN.default.gasPrice,
       hardfork: BLOCKCHAIN.default.evm,
-      initialBaseFeePerGas: BLOCKCHAIN.default.initialBaseFeePerGas,
+      // initialBaseFeePerGas: BLOCKCHAIN.default.initialBaseFeePerGas,
+    },
+    main_test: {
+      url: `${BLOCKCHAIN.networks.get("mainTest")?.protocol}://${
+        BLOCKCHAIN.networks.get("mainTest")?.hostname
+      }:${BLOCKCHAIN.networks.get("mainTest")?.port}`,
+      chainId: BLOCKCHAIN.networks.get("mainTest")?.chainId,
+      blockGasLimit: BLOCKCHAIN.default.gasLimit,
+      gasPrice: BLOCKCHAIN.default.gasPrice,
+      hardfork: BLOCKCHAIN.default.evm,
+      // initialBaseFeePerGas: BLOCKCHAIN.default.initialBaseFeePerGas,
     },
   },
   contractSizer: {
