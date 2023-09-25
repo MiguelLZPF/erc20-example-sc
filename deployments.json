@@ -1,27 +1,60 @@
 [
   {
-    "network": { "name": "hardhat", "chainId": 31337 },
+    "network": {
+      "name": "hardhat",
+      "chainId": 31337
+    },
     "smartContracts": {
       "proxyAdmins": [
         {
-          "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
+          "address": "0x13aFe140a7690814dE87Ee02D2c9c8Df5B9f0722",
           "contractName": "ProxyAdmin",
-          "deployTimestamp": "2023-03-22T20:15:35.000Z",
-          "deployTxHash": "0xcbdb9d6651584274614f9158099e039ae5dca1fe80d01203c86de3f0f9aa5f98",
+          "deployTimestamp": "2023-09-20T19:40:59.000Z",
+          "deployTxHash": "0xe0e3e4e906363dc809e4f4dcf62691d259cf9409f91575ef9ce03b3b1f71a010",
           "byteCodeHash": "0xd379ac778980637ca891676cc23285e97f58adaa6a87f8ba43e3f49876718ce3"
         }
       ],
       "contracts": [
         {
-          "admin": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
-          "proxy": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
-          "logic": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24",
-          "contractName": "StorageUpgr",
-          "deployTimestamp": "2023-03-22T20:15:36.000Z",
-          "proxyDeployTxHash": "0x1080e83ebc904fa35d792aa2e28bc5bf80e908044ea991de09c0899d36d658e3",
-          "logicDeployTxHash": "0x673e9d0a325b7b96536bb3f79e7ffbf965ef23d934051dcc234d787046a89464",
-          "byteCodeHash": "0x9343712a3ddd133f525146026d3e323e8cca52dfbed4833046cb3deae5a53b53",
-          "tag": "example"
+          "admin": "0x13aFe140a7690814dE87Ee02D2c9c8Df5B9f0722",
+          "proxy": "0x41a3ab19af4a0E4eB9B3a3BB77727859349Da11f",
+          "logic": "0xC46CEcc724503290c537f8d916c2E5EEe97b7B9A",
+          "contractName": "SimpleToken",
+          "deployTimestamp": "2023-09-20T19:41:00.000Z",
+          "proxyDeployTxHash": "0x168f9bf962bbd81cf1272e87730cab52fb51a298a9bb8173fedb4a4d52e7e9db",
+          "logicDeployTxHash": "0x4fb5e171a85c981f5623b11f90f048bb6894bf0ad5b1f294fd33b24d4ce25808",
+          "byteCodeHash": "0xdf3e977534223fcfc1db4321d421222a6f8bafb672f7b9e1b707a242de8ffd9f",
+          "tag": "SimpleToken_IOB_TEST"
+        }
+      ]
+    }
+  },
+  {
+    "network": {
+      "name": "ganache",
+      "chainId": 1337
+    },
+    "smartContracts": {
+      "proxyAdmins": [
+        {
+          "address": "0x13aFe140a7690814dE87Ee02D2c9c8Df5B9f0722",
+          "contractName": "ProxyAdmin",
+          "deployTimestamp": "2023-09-21T18:11:32.000Z",
+          "deployTxHash": "0xcf711c596549d5c0cd42ed1c0b5080684ea1e36b26bb4cf722db0fe9cb85c9f2",
+          "byteCodeHash": "0xd379ac778980637ca891676cc23285e97f58adaa6a87f8ba43e3f49876718ce3"
+        }
+      ],
+      "contracts": [
+        {
+          "admin": "0x13aFe140a7690814dE87Ee02D2c9c8Df5B9f0722",
+          "proxy": "0x41a3ab19af4a0E4eB9B3a3BB77727859349Da11f",
+          "logic": "0xC46CEcc724503290c537f8d916c2E5EEe97b7B9A",
+          "contractName": "SimpleToken",
+          "deployTimestamp": "2023-09-21T18:11:32.000Z",
+          "proxyDeployTxHash": "0xd2569955bb2098c7ffa2251178f2b604e857b622f33a912a7b196dec9244379e",
+          "logicDeployTxHash": "0xcb996f9d691ebcdb67a3d0598be8e927ef48a2e570867b79350fae57e6323d61",
+          "byteCodeHash": "0xb1807316ba3af7ff348aa9dce75da45c049ab8ef75a8c427a417b8cb4d0ef19a",
+          "tag": "SimpleToken_IOB"
         }
       ]
     }

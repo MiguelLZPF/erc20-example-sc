@@ -1,4 +1,6 @@
 import { ContractName } from "models/Configuration";
+import { TransactionRequest } from "@ethersproject/providers";
+import { Role } from "./AccessControl";
 
 //* Tasks Interfaces
 export interface ISignerInformation {
@@ -60,6 +62,18 @@ export interface ICallContract extends ISignerInformation {
   artifactPath: string;
 }
 
+export interface ICallContract extends ISignerInformation {
+  contractName: ContractName;
+  contractAddress: string;
+  functionName: string;
+  functionArgs: any;
+  artifactPath: string;
+}
+
+export interface ISignTransaction extends ISignerInformation {
+  unsignedTx: TransactionRequest;
+}
+
 export interface IGetLogic {
   proxy: string;
   proxyAdmin?: string;
@@ -69,4 +83,10 @@ export interface IChangeLogic extends ISignerInformation {
   proxy: string;
   proxyAdmin?: string;
   newLogic: string;
+}
+
+export interface IGrantRole extends ISignerInformation {
+  entity: string;
+  role: Role;
+  accessControl?: string;
 }
